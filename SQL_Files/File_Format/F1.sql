@@ -1,0 +1,11 @@
+-- code DW_PROD."PUBLIC"."CSV_ZIPCODES"
+
+
+CREATE OR REPLACE FILE FORMAT DW_PROD."PUBLIC"."CSV_ZIPCODES"
+    type = 'CSV'
+    FIELD_DELIMITER = ','
+    SKIP_HEADER = 15555
+    COMPRESSION = NONE
+    ENCODING = 'UTF-8'
+    comment = 'demo csv'
+;
