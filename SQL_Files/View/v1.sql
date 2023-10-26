@@ -1,6 +1,6 @@
--- DW_DEV.REPORT.VW_ACTIVE_EMPLOYEES source
+-- DW_DEV.REPORT.VW_ACTIVE_TEST source
 
-create or replace secure view DW_DEV.REPORT.VW_ACTIVE_EMPLOYEES(
+create or replace secure view DW_DEV.REPORT.VW_ACTIVE_TEST(
 	EMPLOYEE_KEY,
 	EMPLOYEE_PID,
 	MONTH,
