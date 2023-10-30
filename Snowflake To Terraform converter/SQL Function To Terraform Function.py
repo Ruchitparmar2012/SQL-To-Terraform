@@ -18,7 +18,7 @@ print(f"Elapsed time: {elapsed_time_microseconds:.2f} microseconds")
 current_directory = os.getcwd()
 
 # Specify the relative folder path containing .sql files
-relative_folder_path = 'SQL_Files/File_Format'
+relative_folder_path = 'SQL_Files/Function'
 
 # Combine the current working directory with the relative folder path
 folder_path = os.path.join(current_directory, relative_folder_path)
