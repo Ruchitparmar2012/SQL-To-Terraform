@@ -64,8 +64,7 @@ def python_terraform(sql):
     
     for command in ddl: 
         command = command.strip().upper()
-#         command = command.replace('CREATE', 'CREATE OR REPLACE') 
-#         if command.startswith("CREATE "):
+
             
         create_commands = re.findall(r"CREATE(?:\s+OR\s+REPLACE)?\s+PROCEDURE(.*?)\(", command, re.DOTALL)
         
@@ -95,19 +94,12 @@ def python_terraform(sql):
             # All regex Pattern
 
 
-            # statement_match = re.search(r"(AS '(?:[^']|''|[^;])*';)", sql, re.DOTALL)
-            # statement_match = re.search(r"(AS '(?:[^']|''|[^;])*';|AS\s*\$\$(?:.|\s)*?\$\$)", sql, re.DOTALL)
-
-            
             statement_match = re.search(r"(AS '(?:[^']|''|[^;])*';|AS\s*\$\$(?:.|\s)*?\$\$)", sql, re.DOTALL)
 
             # Check if there's a match before accessing the group attribute
             if statement_match:
                 statement_matches = statement_match.group(0)
-                
-                # Remove $$ at the beginning and end if present
-                # statement_matches = statement_matches.lstrip('AS $$').rstrip('$$')
-            
+         
                 # Handle single quotes and environment replacement as in your original code
                 extracted_code_single_quotes = statement_matches.strip("AS '").strip("';")
                 extracted_code_replaced = re.sub(r'(_PROD|_DEV)', r'_${var.SF_ENVIRONMENT}', extracted_code_single_quotes)
