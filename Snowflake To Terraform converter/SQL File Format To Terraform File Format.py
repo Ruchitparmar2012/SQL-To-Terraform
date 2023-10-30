@@ -22,7 +22,7 @@ relative_folder_path = 'SQL_Files/File_Format'
 
 # Combine the current working directory with the relative folder path
 folder_path = os.path.join(current_directory, relative_folder_path)
-
+sql_contents_list = []
 try:
     # Get a list of all files in the folder
     files = os.listdir(folder_path)
@@ -31,7 +31,7 @@ try:
     sql_files = [file for file in files if file.endswith('.sql')]
 
     # Read the contents of each .sql file and store them in a list
-    sql_contents_list = []
+    
     for sql_file in sql_files:
         file_path = os.path.join(folder_path, sql_file)
         with open(file_path, 'r') as file:
