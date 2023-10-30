@@ -840,7 +840,7 @@ for sql_contents in sql_contents_list:
     sql_without_quotes = remove_outer_quotes(sql_contents)
     main = python_terraform(sql_without_quotes)
 
-output_folder = os.path.join(current_directory, 'Terraform_Files','File Format')
+output_folder = os.path.join(current_directory, 'Terraform_Files','Function')
 
 try:
     os.makedirs(output_folder, exist_ok=True)
