@@ -280,7 +280,7 @@ def python_terraform(sql):
                         time_format_value = time_format_value.strip("'")
                         code += f"\ttime_format = \"{time_format_value}\"\n"
                     else:
-                        code += f"\tdate_format = \"AUTO\"\n"
+                        code += f"\ttime_format = \"AUTO\"\n"
 
                     if timestamp_format_match:
                         timestamp_format_value = timestamp_format_match.group(1)
@@ -344,7 +344,7 @@ def python_terraform(sql):
                         error_on_column_count_mismatch_value = error_on_column_count_mismatch_match.group(1).lower()
                         code += f"\terror_on_column_count_mismatch = {error_on_column_count_mismatch_value}\n"                
                     else:
-                        code += f"\terror_on_column_count_mismatch_ = true\n"   
+                        code += f"\terror_on_column_count_mismatch = true\n"   
                         
                     if replace_invalid_characters_match:
                         replace_invalid_characters_value = replace_invalid_characters_match.group(1).lower()
@@ -424,6 +424,12 @@ def python_terraform(sql):
                         code += f"\tskip_byte_order_mark = {skip_byte_order_mark_value}\n"
                     else:
                         code += f"\tskip_byte_order_mark = true\n"
+
+                    if Encoding_match:
+                        encoding_value = Encoding_match.group(1)
+                        code += f"\tencoding = \"{encoding_value}\"\n"
+                    else:
+                        code += f"\tencoding = \"UTF8\"\n"
 ## -----------------------------------------------------------------------------------------------------------------------                
                  ### this is  for json
                 if type_value == 'json':
@@ -450,7 +456,7 @@ def python_terraform(sql):
                         time_format_value = time_format_value.strip("'")
                         code += f"\ttime_format = \"{time_format_value}\"\n"
                     else:
-                        code += f"\tdate_format = \"AUTO\"\n"
+                        code += f"\ttime_format = \"AUTO\"\n"
 
                     if timestamp_format_match:
                         timestamp_format_value = timestamp_format_match.group(1)
@@ -495,7 +501,6 @@ def python_terraform(sql):
                     if allow_deplicate_match:
                         allow_deplicate_value = allow_deplicate_match.group(1).lower()
                         code += f"\tallow_deplicate = {allow_deplicate_value}\n"                
-
                     else:
                         code += f"\tallow_deplicate = false\n"  
                     
@@ -515,7 +520,7 @@ def python_terraform(sql):
                         replace_invalid_characters_value = replace_invalid_characters_match.group(1).lower()
                         code += f"\treplace_invalid_characters = {replace_invalid_characters_value}\n"                
                     else:
-                        code += f"\treplace_invalid_characters= false\n"  
+                        code += f"\treplace_invalid_characters = false\n"  
                     
                     if ignore_utf8_errors_match:
                         ignore_utf8_errors_value = ignore_utf8_errors_match.group(1).lower()
@@ -529,6 +534,12 @@ def python_terraform(sql):
                     else:
                         code += f"\tskip_byte_order_mark = true\n"
 
+                    if Encoding_match:
+                        encoding_value = Encoding_match.group(1)
+                        code += f"\tencoding = \"{encoding_value}\"\n"
+                    else:
+                        code += f"\tencoding = \"UTF8\"\n"
+                        
 ## -----------------------------------------------------------------------------------------------------------------------                
                 ### this is  for avro
                 if type_value == 'avro':
@@ -553,7 +564,7 @@ def python_terraform(sql):
                         replace_invalid_characters_value = replace_invalid_characters_match.group(1).lower()
                         code += f"\treplace_invalid_characters = {replace_invalid_characters_value}\n"                
                     else:
-                        code += f"\treplace_invalid_characters= false\n" 
+                        code += f"\treplace_invalid_characters = false\n" 
                           
                     if null_if_match:
                         null_if_value = null_if_match.group(1)
@@ -563,6 +574,11 @@ def python_terraform(sql):
                         null_if_value_Default = "\\n"
                         code += f"\tnull_if = \"\{null_if_value_Default}\"\n" 
 
+                    if Encoding_match:
+                        encoding_value = Encoding_match.group(1)
+                        code += f"\tencoding = \"{encoding_value}\"\n"
+                    else:
+                        code += f"\tencoding = \"UTF8\"\n"
 ## -----------------------------------------------------------------------------------------------------------------------                
                 ### this is  for ORC
                 if type_value == 'orc':
@@ -571,6 +587,13 @@ def python_terraform(sql):
                         code += f"\tformat_type = \"{type_value}\"\n"
                     else:
                         pass
+
+                    if Compression_match:
+                        compression_value = Compression_match.group(1)
+                        code += f"\tcompression = \"{compression_value}\"\n"
+                    else:
+                        code += f"\tcompression = \"AUTO\"\n"
+                        
                     if trim_space_match:
                         trim_space_value = trim_space_match.group(1).lower()
                         code += f"\ttrim_space = {trim_space_value}\n"
@@ -581,7 +604,7 @@ def python_terraform(sql):
                         replace_invalid_characters_value = replace_invalid_characters_match.group(1).lower()
                         code += f"\treplace_invalid_characters = {replace_invalid_characters_value}\n"                
                     else:
-                        code += f"\treplace_invalid_characters= false\n" 
+                        code += f"\treplace_invalid_characters = false\n" 
                           
                     if null_if_match:
                         null_if_value = null_if_match.group(1)
@@ -590,7 +613,12 @@ def python_terraform(sql):
                     else:
                         null_if_value_Default = "\\n"
                         code += f"\tnull_if = \"\{null_if_value_Default}\"\n" 
-
+                        
+                    if Encoding_match:
+                        encoding_value = Encoding_match.group(1)
+                        code += f"\tencoding = \"{encoding_value}\"\n"
+                    else:
+                        code += f"\tencoding = \"UTF8\"\n"
 ## -----------------------------------------------------------------------------------------------------------------------                
                 ### this is  for PARQUET
                 if type_value == 'parquet':
@@ -634,7 +662,7 @@ def python_terraform(sql):
                         replace_invalid_characters_value = replace_invalid_characters_match.group(1).lower()
                         code += f"\treplace_invalid_characters = {replace_invalid_characters_value}\n"                
                     else:
-                        code += f"\treplace_invalid_characters= false\n" 
+                        code += f"\treplace_invalid_characters = false\n" 
                           
                     if null_if_match:
                         null_if_value = null_if_match.group(1)
@@ -643,6 +671,12 @@ def python_terraform(sql):
                     else:
                         null_if_value_Default = "\\n"
                         code += f"\tnull_if = \"\{null_if_value_Default}\"\n" 
+                        
+                    if Encoding_match:
+                        encoding_value = Encoding_match.group(1)
+                        code += f"\tencoding = \"{encoding_value}\"\n"
+                    else:
+                        code += f"\tencoding = \"UTF8\"\n"
 
             
             else:
@@ -706,7 +740,7 @@ def python_terraform(sql):
                     time_format_value = time_format_value.strip("'")
                     code += f"\ttime_format = \"{time_format_value}\"\n"
                 else:
-                    code += f"\tdate_format = \"AUTO\"\n"
+                    code += f"\ttime_format = \"AUTO\"\n"
 
                 if timestamp_format_match:
                     timestamp_format_value = timestamp_format_match.group(1)
@@ -771,7 +805,7 @@ def python_terraform(sql):
                     error_on_column_count_mismatch_value = error_on_column_count_mismatch_match.group(1).lower()
                     code += f"\terror_on_column_count_mismatch = {error_on_column_count_mismatch_value}\n"                
                 else:
-                    code += f"\terror_on_column_count_mismatch_ = true\n"   
+                    code += f"\terror_on_column_count_mismatch = true\n"   
                     
                 if replace_invalid_characters_match:
                     replace_invalid_characters_value = replace_invalid_characters_match.group(1).lower()
@@ -797,8 +831,6 @@ def python_terraform(sql):
                 else:
                     code += f"\tencoding = \"UTF8\"\n"
 
-                
-            
             code += "}\n\n"
 
     return code
