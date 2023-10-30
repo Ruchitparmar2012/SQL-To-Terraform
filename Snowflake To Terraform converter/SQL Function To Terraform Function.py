@@ -22,7 +22,7 @@ relative_folder_path = 'SQL_Files/Function'
 
 # Combine the current working directory with the relative folder path
 folder_path = os.path.join(current_directory, relative_folder_path)
- sql_contents_list = []
+sql_contents_list = []
 try:
     # Get a list of all files in the folder
     files = os.listdir(folder_path)
