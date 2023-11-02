@@ -102,7 +102,7 @@ def python_terraform(sql, comment):
     
                 
     
-                # Create Schema
+                # Create Database
                 resource_table_name = f"resource \"snowflake_database\" \"{dynamic__main_db}_{schema_name}_{table_name}\""
                 code += f"{resource_table_name} {{\n"
                 code += f"\tdatabase = \"{dynamic_db}\"\n"
