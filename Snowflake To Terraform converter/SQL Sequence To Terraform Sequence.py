@@ -116,8 +116,8 @@ def python_terraform(sql):
                 else:
                     print("increment by value not found.")
     
-                # Create Table
-                resource_table_name = f"resource \"snowflake_procedure\" \"{dynamic__main_db}_{schema_name}_{table_name}\""
+                # Create Sequence
+                resource_table_name = f"resource \"snowflake_sequence\" \"{dynamic__main_db}_{schema_name}_{table_name}\""
                 code += f"{resource_table_name} {{\n"
                 code += f"\tname =\"{table_name}\"\n"
                 code += f"\tdatabase = \"{dynamic_db}\"\n"
