@@ -176,7 +176,7 @@ def python_terraform(sql):
             if language_value=='SQL':
                 
                 # main code 
-                resource_table_name = f"resource \"snowflake_procedure\" \"{dynamic__main_db}_{schema_name}_{table_name}\""
+                resource_table_name = f"resource \"snowflake_function\" \"{dynamic__main_db}_{schema_name}_{table_name}\""
                 code += f"{resource_table_name} {{\n"
                 code += f"\tname = \"{table_name}\"\n"
                 code += f"\tdatabase = \"{dynamic_db}\"\n"
