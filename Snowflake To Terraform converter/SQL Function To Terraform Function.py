@@ -234,7 +234,8 @@ def python_terraform(sql):
                 elif "RETURN_BEHAVIOR" not in sql:
                     pass
     
-                code += f"\tstatement =  \"{extracted_code_replaced}\"\n"
+                # code += f"\tstatement =  \"{extracted_code_replaced}\"\n"
+                code += f"\tstatement = <<-EOT\n{extracted_code_replaced}\n EOT\n"
     
                 code += "}\n\n"
             # this is for JAVASCRIPT langauge   
@@ -308,7 +309,8 @@ def python_terraform(sql):
                     pass
                 
                 
-                code += f"\tstatement =  \"{extracted_code_replaced}\"\n"
+                # code += f"\tstatement =  <<-EOT\n{extracted_code_replaced}\"\n"
+                code += f"\tstatement = <<-EOT\n{extracted_code_replaced}\n EOT\n"
     
                 code += "}\n\n"
 
@@ -384,7 +386,7 @@ def python_terraform(sql):
 
                 if "PACKAGES" in sql:
                     try:
-                        code += f"\tpackges = \"[{packages_value}]\"\n"
+                        code += f"\tpackages = [{packages_value}]\n"
                     except AttributeError:
                         pass
                 elif "PACKAGES" not in sql:
@@ -398,8 +400,8 @@ def python_terraform(sql):
                 elif "HANDLER" not in sql:
                     pass
                     
-                code += f"\tstatement =  \"{extracted_code_replaced}\"\n"
-    
+                # code += f"\tstatement =  \"{extracted_code_replaced}\"\n"
+                code += f"\tstatement = <<-EOT\n{extracted_code_replaced}\n EOT\n"
                 code += "}\n\n"
                     
  
