@@ -277,7 +277,7 @@ def python_terraform(sql):
 
             if "PACKAGES" in sql:
                 try:
-                    code += f"\tpackges = \"[{packages_value}]\"\n"
+                    code += f"\tpackages = [{packages_value}]\n"
                 except AttributeError:
                     pass
             elif "PACKAGES" not in sql:
@@ -291,7 +291,7 @@ def python_terraform(sql):
             elif "HANDLER" not in sql:
                 pass
                 
-            code += f"\tstatement = <<-EOT \n{extracted_code_replaced}\n EOT\n"
+            code += f"\tstatement = <<-EOT\n{extracted_code_replaced}\n EOT\n"
 
             code += "}\n\n"
                     
