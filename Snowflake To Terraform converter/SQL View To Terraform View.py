@@ -130,7 +130,7 @@ def python_terraform(sql):
             code += f"\tname = \"{table_name}\"\n"
             code += f"\tdata_retention_time_in_days = {data_retention_time_in_days_schema}\n"
 
-            code += f"\tstatement = <<-SQL \n\t {extracted_code_replaced} \nSQL\n"
+            code += f"\tstatement = <<-SQL\n\t {extracted_code_replaced}\nSQL\n"
             
             if or_replace_present:
                 code += f"\tor_replace = true \n"
