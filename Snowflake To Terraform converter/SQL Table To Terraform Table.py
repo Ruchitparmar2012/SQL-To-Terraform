@@ -87,7 +87,7 @@ def python_terraform(sql, comment):
                 database_name = database_info[0].replace('"', '')
                 schema_name = database_info[1].replace('"', '')
                 table_name = database_info[2].replace('"', '')
-                data_retention_time_in_days_schema = 1
+                # data_retention_time_in_days_schema = 1
     
                 # Set the dynamic database name / remove dev, prod name
                 dynamic_db = ''
@@ -111,7 +111,7 @@ def python_terraform(sql, comment):
                 
                 code += f"\tschema = \"{schema_name}\"\n"
                 code += f"\tname = \"{table_name}\"\n"
-                code += f"\tdata_retention_days = {data_retention_time_in_days_schema}\n"
+                # code += f"\tdata_retention_days = {data_retention_time_in_days_schema}\n"
                 code += f"\tchange_tracking = false\n"
                 code += f"\tcomment = \"{comment}\"\n"
     
