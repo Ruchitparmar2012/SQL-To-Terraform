@@ -205,7 +205,7 @@ def python_terraform(sql):
             # Check if a match was found
             if comment_match:
                 comment_value = comment_match.group(1).strip()
-                code += f"\tcomment_value = \"{comment_value}\"\n"
+                code += f"\tcomment = \"{comment_value}\"\n"
             else:
                 pass
 
