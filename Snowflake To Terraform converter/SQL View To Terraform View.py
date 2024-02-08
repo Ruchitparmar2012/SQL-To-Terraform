@@ -76,7 +76,7 @@ def python_terraform(sql):
             table_name = match[2].strip('"')
 #             print(f"Database: {database_name}, Schema: {schema_name}, Table: {table_name}")
 
-            data_retention_time_in_days_schema = 1
+            # data_retention_time_in_days_schema = 1
 
             # set the dynamic database name  / remove dev , prod name
             dynamic_db = ''
@@ -128,7 +128,7 @@ def python_terraform(sql):
             resource_table_name_list.append(resource_table_name_demo)
             code += f"\tschema = \"{schema_name}\"\n"
             code += f"\tname = \"{table_name}\"\n"
-            code += f"\tdata_retention_time_in_days = {data_retention_time_in_days_schema}\n"
+            # code += f"\tdata_retention_time_in_days = {data_retention_time_in_days_schema}\n"
 
             code += f"\tstatement = <<-SQL\n\t {extracted_code_replaced}\nSQL\n"
             
