@@ -139,8 +139,8 @@ def python_terraform(sql):
             # this pattern for enable_octal   
             enable_octal_match = re.search(r'enable_octal\s*=\s*(\w+)', sql, re.IGNORECASE)
 
-            # this pattern for allow_deplicate   
-            allow_deplicate_match = re.search(r'allow_duplicate\s*=\s*(\w+)', sql, re.IGNORECASE)
+            # this pattern for allow_duplicate   
+            allow_duplicate_match = re.search(r'allow_duplicate\s*=\s*(\w+)', sql, re.IGNORECASE)
 
             # this pattern for strip_outer_array   
             strip_outer_array_match = re.search(r'strip_outer_array\s*=\s*(\w+)', sql, re.IGNORECASE)
@@ -498,11 +498,11 @@ def python_terraform(sql):
                     else:
                         code += f"\tenable_octal = false\n"
                     
-                    if allow_deplicate_match:
-                        allow_deplicate_value = allow_deplicate_match.group(1).lower()
-                        code += f"\tallow_deplicate = {allow_deplicate_value}\n"                
+                    if allow_duplicate_match:
+                        allow_duplicate_match = allow_duplicate_match.group(1).lower()
+                        code += f"\tallow_duplicate = {allow_duplicate_match}\n"                
                     else:
-                        code += f"\tallow_deplicate = false\n"  
+                        code += f"\tallow_duplicate = false\n"  
                     
                     if strip_outer_array_match:
                         strip_outer_array_value = strip_outer_array_match.group(1).lower()
@@ -512,9 +512,9 @@ def python_terraform(sql):
 
                     if strip_null_values_match:
                         strip_null_values_value = strip_null_values_match.group(1).lower()
-                        code += f"\tstrip_null = {strip_null_values_value}\n"                
+                        code += f"\tstrip_null_values = {strip_null_values_value}\n"                
                     else:
-                        code += f"\tstrip_null = false\n"                
+                        code += f"\tstrip_null_values = false\n"                
 
                     if replace_invalid_characters_match:
                         replace_invalid_characters_value = replace_invalid_characters_match.group(1).lower()
