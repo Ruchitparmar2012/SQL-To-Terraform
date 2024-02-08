@@ -82,11 +82,11 @@ def python_terraform(sql):
             dynamic_db = ''
             dynamic__main_db =''
             if database_name.endswith("_DEV"): 
-                    dynamic_db += database_name.replace("_DEV", "_${var.SF_ENVIRONMENT_dev}")
+                    dynamic_db += database_name.replace("_DEV", "_${var.SF_ENVIRONMENT}")
                     dynamic__main_db += database_name.replace("_DEV", "")
 
             elif database_name.endswith("_PROD"):
-                    dynamic_db  += database_name.replace("_PROD", "_${var.SF_ENVIRONMENT_prod}")
+                    dynamic_db  += database_name.replace("_PROD", "_${var.SF_ENVIRONMENT}")
                     dynamic__main_db += database_name.replace("_PROD", "")
         #------------------------------------------------------------------------------------------------
             
