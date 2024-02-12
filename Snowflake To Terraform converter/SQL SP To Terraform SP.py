@@ -290,7 +290,8 @@ def python_terraform(sql):
                     pass
             elif "HANDLER" not in sql:
                 pass
-                
+
+            extracted_code_replaced = extracted_code_replaced.replace('\'\'', '\'')
             code += f"\tstatement = <<-EOT\n{extracted_code_replaced}\n EOT\n"
 
             code += "}\n\n"
