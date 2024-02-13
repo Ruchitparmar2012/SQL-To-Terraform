@@ -853,8 +853,8 @@ for sql_contents in sql_contents_list:
 
 
 # Assuming that resource_database_name and resource_schema_name contain only one item each
-last_database_name = resource_database_name[-1] if resource_database_name else 'default_database'
-last_schema_name = resource_schema_name[-1] if resource_schema_name else 'default_schema'
+last_database_name = resource_database_name[0]
+last_schema_name = resource_schema_name[0] 
 
 output_folder = os.path.join(current_directory, 'Terraform_Files', last_database_name, last_schema_name, 'File Format')
 
