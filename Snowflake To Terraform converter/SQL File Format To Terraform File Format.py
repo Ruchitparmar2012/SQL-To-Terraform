@@ -54,6 +54,8 @@ def remove_outer_quotes(sql):
     
     return sql
 resource_File_Format_name_list = []
+resource_database_name = []
+resource_schema_name = []
 
 # main python code 
 def python_terraform(sql):
@@ -66,7 +68,9 @@ def python_terraform(sql):
 
         if create_command:
             database_name, schema_name, table_name = create_command[0]
- 
+            resource_database_name.append(database_name)
+            resource_schema_name.append(schema_name)
+            
             # set the dynamic database name / remove dev, prod name
             dynamic_db = ''
             dynamic__main_db = ''
@@ -155,7 +159,7 @@ def python_terraform(sql):
             null_if_match = re.search(r'\bnull_if\s*=\s*(\'[^\']*\'|AUTO)\s*', sql, re.IGNORECASE)
 
             # this pattern for parse_header   
-            parse_header_match = re.search(r'parse_header\s*=\s*(\w+)', sql, re.IGNORECASE)
+#             parse_header_match = re.search(r'parse_header\s*=\s*(\w+)', sql, re.IGNORECASE)
 
             # this pattern for skip_blank_lines
             skip_blank_lines_match = re.search(r'skip_blank_lines\s*=\s*(\w+)', sql, re.IGNORECASE)
@@ -250,17 +254,18 @@ def python_terraform(sql):
                     else:
                         code += f"\tfile_extension = \"NONE\"\n"
                         
-                    if parse_header_match:
-                        parse_header_value = parse_header_match.group(1).lower()
-                        code += f"\tparse_header = {parse_header_value}\n"                
-                    else:
-                        code += f"\tparse_header =  false\n"
+#                     if parse_header_match:
+#                         parse_header_value = parse_header_match.group(1).lower()
+#                         code += f"\tparse_header = {parse_header_value}\n"                
+#                     else:
+#                         code += f"\tparse_header =  false\n"
                         
                     if skip_header_match:
                         skip_header_value = skip_header_match.group(1)
-                        code += f"\tskip_header = \"{skip_header_value}\"\n"
+                        code += f"\tskip_header = {skip_header_value}\n"
                     else:
-                        code += f"\tskip_header = \"0\"\n"
+                        value_skip =0
+                        code += f"\tskip_header = {value_skip}\n"
                         
                     if skip_blank_lines_match:
                         skip_blank_lines_value = skip_blank_lines_match.group(1).lower()
@@ -337,8 +342,8 @@ def python_terraform(sql):
                         null_if_value = null_if_value.strip("'")
                         code += f"\tnull_if = \"{null_if_value}\"\n"                
                     else:
-                        null_if_value_Default = "\\n"
-                        code += f"\tnull_if = \"\{null_if_value_Default}\"\n" 
+                        null_if_value_Default = '["\\\\n"]'
+                        code += f"\tnull_if = {null_if_value_Default}\n"
                     
                     if error_on_column_count_mismatch_match:
                         error_on_column_count_mismatch_value = error_on_column_count_mismatch_match.group(1).lower()
@@ -482,8 +487,8 @@ def python_terraform(sql):
                         null_if_value = null_if_value.strip("'")
                         code += f"\tnull_if = \"{null_if_value}\"\n"                
                     else:
-                        null_if_value_Default = "\\n"
-                        code += f"\tnull_if = \"\{null_if_value_Default}\"\n" 
+                        null_if_value_Default = '["\\\\n"]'
+                        code += f"\tnull_if = {null_if_value_Default}\n"
                     
                     if file_extension_match:
                         file_extension_value = file_extension_match.group(1)
@@ -571,8 +576,8 @@ def python_terraform(sql):
                         null_if_value = null_if_value.strip("'")
                         code += f"\tnull_if = \"{null_if_value}\"\n"                
                     else:
-                        null_if_value_Default = "\\n"
-                        code += f"\tnull_if = \"\{null_if_value_Default}\"\n" 
+                        null_if_value_Default = '["\\\\n"]'
+                        code += f"\tnull_if = {null_if_value_Default}\n"
 
                     if Encoding_match:
                         encoding_value = Encoding_match.group(1)
@@ -611,8 +616,8 @@ def python_terraform(sql):
                         null_if_value = null_if_value.strip("'")
                         code += f"\tnull_if = \"{null_if_value}\"\n"                
                     else:
-                        null_if_value_Default = "\\n"
-                        code += f"\tnull_if = \"\{null_if_value_Default}\"\n" 
+                        null_if_value_Default = '["\\\\n"]'
+                        code += f"\tnull_if = {null_if_value_Default}\n" 
                         
                     if Encoding_match:
                         encoding_value = Encoding_match.group(1)
@@ -669,8 +674,8 @@ def python_terraform(sql):
                         null_if_value = null_if_value.strip("'")
                         code += f"\tnull_if = \"{null_if_value}\"\n"                
                     else:
-                        null_if_value_Default = "\\n"
-                        code += f"\tnull_if = \"\{null_if_value_Default}\"\n" 
+                        null_if_value_Default = '["\\\\n"]'
+                        code += f"\tnull_if = {null_if_value_Default}\n"
                         
                     if Encoding_match:
                         encoding_value = Encoding_match.group(1)
@@ -710,17 +715,18 @@ def python_terraform(sql):
                 else:
                     code += f"\tfile_extension = \"NONE\"\n"
                     
-                if parse_header_match:
-                    parse_header_value = parse_header_match.group(1).lower()
-                    code += f"\tparse_header = {parse_header_value}\n"                
-                else:
-                    code += f"\tparse_header =  false\n"
+#                 if parse_header_match:
+#                     parse_header_value = parse_header_match.group(1).lower()
+#                     code += f"\tparse_header = {parse_header_value}\n"                
+#                 else:
+#                     code += f"\tparse_header =  false\n"
                     
                 if skip_header_match:
                     skip_header_value = skip_header_match.group(1)
-                    code += f"\tskip_header = \"{skip_header_value}\"\n"
+                    code += f"\tskip_header = {skip_header_value}\n"
                 else:
-                    code += f"\tskip_header = \"0\"\n"
+                    value_skip =0
+                    code += f"\tskip_header = {value_skip}\n"
                     
                 if skip_blank_lines_match:
                     skip_blank_lines_value = skip_blank_lines_match.group(1).lower()
@@ -798,8 +804,8 @@ def python_terraform(sql):
                     null_if_value = null_if_value.strip("'")
                     code += f"\tnull_if = \"{null_if_value}\"\n"                
                 else:
-                    null_if_value_Default = "\\n"
-                    code += f"\tnull_if = \"\{null_if_value_Default}\"\n" 
+                    null_if_value_Default = '["\\\\n"]'
+                    code += f"\tnull_if = {null_if_value_Default}\n"
                 
                 if error_on_column_count_mismatch_match:
                     error_on_column_count_mismatch_value = error_on_column_count_mismatch_match.group(1).lower()
@@ -840,7 +846,18 @@ for sql_contents in sql_contents_list:
     sql_without_quotes = remove_outer_quotes(sql_contents)
     main = python_terraform(sql_without_quotes)
 
-output_folder = os.path.join(current_directory, 'Terraform_Files','File Format')
+# last_database_name = resource_database_name[-1] if resource_database_name else 'default_database'
+# last_schema_name = resource_schema_name[-1] if resource_schema_name else 'default_schema'
+
+# output_folder = os.path.join(current_directory, 'Terraform_Files', resource_database_name,resource_schema_name,'File Format')
+
+
+# Assuming that resource_database_name and resource_schema_name contain only one item each
+last_database_name = resource_database_name[-1] if resource_database_name else 'default_database'
+last_schema_name = resource_schema_name[-1] if resource_schema_name else 'default_schema'
+
+output_folder = os.path.join(current_directory, 'Terraform_Files', last_database_name, last_schema_name, 'File Format')
+
 
 try:
     os.makedirs(output_folder, exist_ok=True)
