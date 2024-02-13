@@ -92,7 +92,8 @@ if procedures:
                                                       f'CREATE OR REPLACE PROCEDURE {fully_qualified_procedure_name}')
 
          # Remove line breaks and extra spaces
-        modified_ddl_statement = modified_ddl_statement.replace('\r\n', '\n') 
+        # modified_ddl_statement = modified_ddl_statement.replace('\r\n', '\n') 
+        modified_ddl_statement = modified_ddl_statement.replace('\r\n', '\n').replace('\xa0', ' ').replace('\u2003', ' ').replace("''", "'")
         
         # Step 2: Create a .sql file and write the DDL statement to it
         sql_file_name = f"{procedure_dir}/{fully_qualified_procedure_name}.sql"
