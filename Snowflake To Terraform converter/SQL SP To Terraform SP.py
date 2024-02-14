@@ -318,7 +318,10 @@ for sql_contents in sql_contents_list:
 #         print(database_name, schema_name, table_name)
 
         if extract_schema_database_table:
-            database_name, schema_name, table_name = extract_schema_database_table.groups()
+            # database_name, schema_name, table_name = extract_schema_database_table.groups()
+            database_name = extract_schema_database_table.group(1)
+            schema_name = extract_schema_database_table.group(2)
+            table_name = extract_schema_database_table.group(3)
             # Update the output folder path to include database name and schema name
             output_folder = os.path.join(current_directory, 'Terraform_Files', database_name, schema_name, 'stored procedure')
 
