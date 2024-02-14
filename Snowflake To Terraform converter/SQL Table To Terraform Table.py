@@ -79,13 +79,52 @@ def check_table_comment(sql):
         database_name = database_info[0].replace('"', '')
         schema_name = database_info[1].replace('"', '')
         table_name = database_info[2].replace('"', '')
-
+        
         from datetime import datetime
 
         current_date = datetime.now().date()
 
         current_date = datetime.now().strftime("%Y-%m-%d")
+        
+        dynamic_db = ''
+        dynamic__main_db = ''
+        if database_name.endswith("_DEV"):
+            dynamic_db += database_name.replace("_DEV", "_${var.SF_ENVIRONMENT}")
+            dynamic__main_db += database_name.replace("_DEV", "")
+        elif database_name.endswith("_PROD"):
+            dynamic_db += database_name.replace("_PROD", "_${var.SF_ENVIRONMENT}")
+            dynamic__main_db += database_name.replace("_PROD", "")
 
+            
+        purpose_value = ''
+        if 'DISC'==dynamic__main_db:
+            purpose = 'Discovery Data Population'
+            purpose_value+=purpose
+        elif 'DW'==dynamic__main_db and ('HAH'==schema_name or 'STAGE'==schema_name):
+            purpose = 'Business Data Population'
+            purpose_value+=purpose
+        elif 'DW'==dynamic__main_db and 'INTEGRATION'==schema_name :
+            purpose = 'Business Integration Data Population'
+            purpose_value+=purpose
+        elif 'DW'==dynamic__main_db and 'REPORT'==schema_name :
+            purpose = 'Business Report Data Population'
+            purpose_value+=purpose
+        elif 'APP_DB'==dynamic__main_db:
+            purpose = 'APP_DB Data Population'
+            purpose_value+=purpose
+        elif 'APP_DB'==dynamic__main_db:
+            purpose = 'APP_DB Data Population'
+            purpose_value+=purpose
+        elif 'ETL_Management'==dynamic__main_db and 'AUDIT'==schema_name :
+            purpose = 'ETL Audit Data Population'
+            purpose_value+=purpose
+        elif 'ETL_Management'==dynamic__main_db and 'CONFIG'==schema_name :
+            purpose = 'ETL CONFIG Data Population'
+            purpose_value+=purpose
+        elif 'DEDUPE'==dynamic__main_db :
+            purpose = 'Dedupe Data Population'
+            purpose_value+=purpose
+            
         if comment_match:
             comment = comment_match.group(1)
             return comment
@@ -95,7 +134,7 @@ def check_table_comment(sql):
 
     -- NAME :  {database_name}.{schema_name}.{table_name}
 
-    -- Purpose : Discovery Data Population
+    -- Purpose : {purpose_value}
 
     -- Project : {schema_name}
 
@@ -287,7 +326,7 @@ for sql_contents in sql_contents_list:
         except Exception as e:
             print(f"An error occurred while creating the output folder: {e}")
 
-        # Write Terraform code to the appropriate output file
+#         Write Terraform code to the appropriate output file
         try:
             dynamic_db = ''
             dynamic__main_db = ''
