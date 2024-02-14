@@ -539,11 +539,11 @@ def python_terraform(sql):
                     else:
                         code += f"\tskip_byte_order_mark = true\n"
 
-                    if Encoding_match:
-                        encoding_value = Encoding_match.group(1)
-                        code += f"\tencoding = \"{encoding_value}\"\n"
-                    else:
-                        code += f"\tencoding = \"UTF8\"\n"
+                    # if Encoding_match:
+                    #     encoding_value = Encoding_match.group(1)
+                    #     code += f"\tencoding = \"{encoding_value}\"\n"
+                    # else:
+                    #     code += f"\tencoding = \"UTF8\"\n"
                         
 ## -----------------------------------------------------------------------------------------------------------------------                
                 ### this is  for avro
