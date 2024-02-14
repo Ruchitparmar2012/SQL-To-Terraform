@@ -316,7 +316,7 @@ for sql_contents in sql_contents_list:
         extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', create_command)
         database_name, schema_name, table_name = extract_schema_database_table.groups()
         
-        print(database_name, schema_name, table_name)
+        # print(database_name, schema_name, table_name)
 
         if extract_schema_database_table:
 #             database_name, schema_name, table_name = extract_schema_database_table.groups()
