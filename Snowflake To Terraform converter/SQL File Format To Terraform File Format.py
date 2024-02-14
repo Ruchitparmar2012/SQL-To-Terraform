@@ -841,39 +841,64 @@ def python_terraform(sql):
 
     return code
 
+# # Process each SQL content and generate Terraform code
+# for sql_contents in sql_contents_list:
+#     sql_without_quotes = remove_outer_quotes(sql_contents)
+#     main = python_terraform(sql_without_quotes)
+
+
+# # Assuming that resource_database_name and resource_schema_name contain only one item each
+# last_database_name = resource_database_name[0]
+# last_schema_name = resource_schema_name[0] 
+
+# output_folder = os.path.join(current_directory, 'Terraform_Files', last_database_name, last_schema_name, 'File Format')
+
+
+# try:
+#     os.makedirs(output_folder, exist_ok=True)
+# except Exception as e:
+#     print(f"An error occurred while creating the output folder: {e}")
+
+# for i, sql_contents in enumerate(sql_contents_list):
+#     sql_without_quotes = remove_outer_quotes(sql_contents)
+#     main = python_terraform(sql_without_quotes)
+
+#     for i in resource_File_Format_name_list:
+#         resource_name = i 
+#         output_filename = os.path.join(output_folder, f"{resource_name}.tf")
+     
+#     try:
+#         with open(output_filename, 'w') as tf_file:
+#             tf_file.write(main)
+#     except Exception as e:
+#         print(f"An error occurred while writing the output file: {e}")
+        
+        
+      
 # Process each SQL content and generate Terraform code
 for sql_contents in sql_contents_list:
     sql_without_quotes = remove_outer_quotes(sql_contents)
     main = python_terraform(sql_without_quotes)
+    # Extract database name and schema name from the SQL content
+    extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', sql_without_quotes)
+    if extract_schema_database_table:
+        database_name, schema_name,table_name = extract_schema_database_table.groups()
 
-# last_database_name = resource_database_name[-1] if resource_database_name else 'default_database'
-# last_schema_name = resource_schema_name[-1] if resource_schema_name else 'default_schema'
-
-# output_folder = os.path.join(current_directory, 'Terraform_Files', resource_database_name,resource_schema_name,'File Format')
-
-
-# Assuming that resource_database_name and resource_schema_name contain only one item each
-last_database_name = resource_database_name[0]
-last_schema_name = resource_schema_name[0] 
-
-output_folder = os.path.join(current_directory, 'Terraform_Files', last_database_name, last_schema_name, 'File Format')
-
-
-try:
-    os.makedirs(output_folder, exist_ok=True)
-except Exception as e:
-    print(f"An error occurred while creating the output folder: {e}")
-
-for i, sql_contents in enumerate(sql_contents_list):
-    sql_without_quotes = remove_outer_quotes(sql_contents)
-    main = python_terraform(sql_without_quotes)
-
-    for i in resource_File_Format_name_list:
-        resource_name = i 
-        output_filename = os.path.join(output_folder, f"{resource_name}.tf")
-     
-    try:
-        with open(output_filename, 'w') as tf_file:
-            tf_file.write(main)
-    except Exception as e:
-        print(f"An error occurred while writing the output file: {e}")
+        # Update the output folder path to include database name and schema name
+        output_folder = os.path.join(current_directory, 'Terraform_Files', database_name, schema_name, 'File Format')
+        
+        try:
+            os.makedirs(output_folder, exist_ok=True)
+        except Exception as e:
+            print(f"An error occurred while creating the output folder: {e}")
+        
+        # Write Terraform code to the appropriate output file
+        try:
+            resource_table_name = f"{database_name}_{schema_name}_{table_name}"
+            output_filename = os.path.join(output_folder, f"{resource_table_name}.tf")
+            with open(output_filename, 'w') as tf_file:
+                tf_file.write(main)
+        except Exception as e:
+            print(f"An error occurred while writing the output file: {e}")
+    else:
+        print("Unable to extract database name and schema name from the SQL content.")
