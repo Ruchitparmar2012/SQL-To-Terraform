@@ -300,33 +300,6 @@ def python_terraform(sql):
     return code
 
 
-# # Process each SQL content and generate Terraform code
-# for sql_contents in sql_contents_list:
-#     sql_without_quotes = remove_outer_quotes(sql_contents)
-#     main = python_terraform(sql_without_quotes)
-# #     print(main)
-
-# output_folder = os.path.join(current_directory, 'Terraform_Files','stored procedure')
-
-# try:
-#     os.makedirs(output_folder, exist_ok=True)
-# except Exception as e:
-#     print(f"An error occurred while creating the output folder: {e}")
-
-# for i, sql_contents in enumerate(sql_contents_list):
-#     sql_without_quotes = remove_outer_quotes(sql_contents)
-#     main = python_terraform(sql_without_quotes)
-
-#     for i in resource_table_name_list:
-#         resource_name = i 
-#         output_filename = os.path.join(output_folder, f"{resource_name}.tf")
-
-#     try:
-#         with open(output_filename, 'w') as tf_file:
-#             tf_file.write(main)
-#     except Exception as e:
-#         print(f"An error occurred while writing the output file: {e}")
-
 
 
         
