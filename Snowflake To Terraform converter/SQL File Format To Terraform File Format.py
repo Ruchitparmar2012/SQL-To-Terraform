@@ -331,9 +331,9 @@ def python_terraform(sql):
                         field_optionally_enclosed_by_value = field_optionally_enclosed_by_matches[0][0] or field_optionally_enclosed_by_matches[0][1]
                         if field_optionally_enclosed_by_value in '"':
                             demo =  '\"'
-                            code += f"\tfield_optionally_enclosed_by = \"\{demo}\"\n"  
+                            code += f"\tfield_optionally_enclosed_by = \"\{demo}\"\"\n"  
                         else:
-                            code += f"\tfield_optionally_enclosed_by = \"{field_optionally_enclosed_by_value}\"\n"  
+                            code += f"\tfield_optionally_enclosed_by = \"{field_optionally_enclosed_by_value}\"\"\n"  
                     else:
                         code += f"\tfield_optionally_enclosed_by = \"NONE\"\n" 
                         
@@ -793,9 +793,9 @@ def python_terraform(sql):
                     field_optionally_enclosed_by_value = field_optionally_enclosed_by_matches[0][0] or field_optionally_enclosed_by_matches[0][1]
                     if field_optionally_enclosed_by_value in '"':
                         demo =  '\"'
-                        code += f"\tfield_optionally_enclosed_by = \"\{demo}\"\n"  
+                        code += f"\tfield_optionally_enclosed_by = \"\{demo}\"\"\n"  
                     else:
-                        code += f"\tfield_optionally_enclosed_by = \"{field_optionally_enclosed_by_value}\"\n"  
+                        code += f"\tfield_optionally_enclosed_by = \"{field_optionally_enclosed_by_value}\"\"\n"  
                 else:
                     code += f"\tfield_optionally_enclosed_by = \"NONE\"\n" 
                     
@@ -879,6 +879,7 @@ def python_terraform(sql):
 for sql_contents in sql_contents_list:
     sql_without_quotes = remove_outer_quotes(sql_contents)
     main = python_terraform(sql_without_quotes)
+
     # Extract database name and schema name from the SQL content
     extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', sql_without_quotes)
     if extract_schema_database_table:
