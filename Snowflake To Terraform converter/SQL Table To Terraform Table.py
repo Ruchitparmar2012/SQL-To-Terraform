@@ -55,180 +55,255 @@ def remove_outer_quotes(sql):
 
     return sql
 
+# resource_database_name = []
+# resource_schema_name = []
+# resource_table = []
+# print(resource_database_name)
+
+# for i in resource_database_name:
+#     print(i)
+    
 def check_table_comment(sql):
     comment_match = re.search(r"comment\s*=\s*'([^']*)'", sql, re.IGNORECASE)
+    
+    # Assuming 'command' contains your SQL command as a string
+    command = sql.strip().upper()
+    create_commands = re.findall(r"CREATE(?:\s+OR\s+REPLACE)?\s+TABLE(.*?)\(", command, re.DOTALL)
+    # Iterate over each match in the list
 
-    if comment_match:
-        comment = comment_match.group(1)
-        return comment
-    else:
-        return None
+    for create_command in create_commands:
+        # Perform the split operation on each matched string
+        database_info = create_command.strip().split('.')
+
+        # Extract database name, schema name, and table name
+        database_name = database_info[0].replace('"', '')
+        schema_name = database_info[1].replace('"', '')
+        table_name = database_info[2].replace('"', '')
+
+        from datetime import datetime
+
+        current_date = datetime.now().date()
+
+        current_date = datetime.now().strftime("%Y-%m-%d")
+
+        if comment_match:
+            comment = comment_match.group(1)
+            return comment
+        else:
+            comment  = f''' 
+    --*****************************************************************************************************************************
+
+    -- NAME :  {database_name}.{schema_name}.{table_name}
+
+    -- Purpose : Discovery Data Population
+
+    -- Project : {schema_name}
+
+    -- Source Data update Frequency : 60 min
+
+    --
+
+    -- DEVELOPMENT LOG:
+
+    -- DATE        AUTHOR                NOTES:
+
+    -- ----------  -------------------   -----------------------------------------------------------------------------------------------
+
+    -- {current_date}  Terraform            Initial Development(from Terraform GitHub Action Deployment)
+
+    --*****************************************************************************************************************************
+            '''
+            return comment
 
 
 resource_table_name_list = []
+
+
+
 
 # Main Python code
 def python_terraform(sql, comment):
     comment = check_table_comment(sql)
     
-    if comment:
+
        
-        code = ""
-        ddl = sql.split(';')
-    
-        for command in ddl:
-            command = command.strip().upper()
-            create_commands = re.findall(r"CREATE(?:\s+OR\s+REPLACE)?\s+TABLE(.*?)\(", command, re.DOTALL)
-    
-            # Get the database name, schema name, table name
-            for create_command in create_commands:
-                create_command = create_command.strip()
-                database_info = create_command.split()[0].split('.')
-                database_name = database_info[0].replace('"', '')
-                schema_name = database_info[1].replace('"', '')
-                table_name = database_info[2].replace('"', '')
-                # data_retention_time_in_days_schema = 1
-    
-                # Set the dynamic database name / remove dev, prod name
-                dynamic_db = ''
-                dynamic__main_db = ''
-                if database_name.endswith("_DEV"):
-                    dynamic_db += database_name.replace("_DEV", "_${var.SF_ENVIRONMENT}")
-                    dynamic__main_db += database_name.replace("_DEV", "")
-                elif database_name.endswith("_PROD"):
-                    dynamic_db += database_name.replace("_PROD", "_${var.SF_ENVIRONMENT}")
-                    dynamic__main_db += database_name.replace("_PROD", "")
-    
-                
-    
-                # Create table
-                resource_table_name = f"resource \"snowflake_table\" \"{dynamic__main_db}_{schema_name}_{table_name}\""
-                code += f"{resource_table_name} {{\n"
-                code += f"\tdatabase = \"{dynamic_db}\"\n"
-                
-                resource_table_name_demo = f'{dynamic__main_db}_{schema_name}_{table_name}'
-                resource_table_name_list.append(resource_table_name_demo)
-                
-                code += f"\tschema = \"{schema_name}\"\n"
-                code += f"\tname = \"{table_name}\"\n"
-                # code += f"\tdata_retention_days = {data_retention_time_in_days_schema}\n"
-                code += f"\tchange_tracking = false\n"
-                code += f"\tcomment = \"{comment}\"\n"
-    
-                # Find the column names
-                column_matches = re.findall(
-                    r'"([^"]+)"|([a-zA-Z_][\w\s/\-*^]*)\s+(?:AS\s+)?(?:(?:VARCHAR|CHAR|NUMBER|BINARY|STRING|TIMESTAMP_NTZ|TIMESTAMP_TZ|TIMESTAMP|TIME|ARRAY|VARIANT|OBJECT|TIMESTAMP_LTZ|GEOGRAPHY|GEOMETRY|BLOB|CLOB|TINYINT|DECIMAL)\([\d,]+\)|ARRAY|VARCHAR|TIMESTAMP_NTZ|TIMESTAMP_TZ|TIMESTAMP|BOOLEAN|TEXT|DATE|INT|INTEGER|FLOAT|VARIANT|OBJECT|TIMESTAMP_LTZ|GEOGRAPHY|GEOMETRY|BLOB|CLOB|TINYINT|DECIMAL)',
-                    sql.replace('\n', ' '))
-                column_names = [column[0] or column[1] for column in column_matches if column[0] or column[1]]
-                column_names = [column.strip() for column in column_names if column.strip() != 'AS']
-    
-                # Find the Not Null column names
-                not_null_pattern = r'(?:"(.*?)".*?NOT NULL|(\w+)\s+.*?NOT NULL)'
-                matches = re.findall(not_null_pattern, sql)
-                not_null_columns = [match[0] or match[1] for match in matches]
-    
-                # Find the Comment column names
-                Comment_pattern = r'(?:"(.*?)".*?COMMENT\s+\'(.*?)\'|(\w+)\s+.*?COMMENT\s+\'(.*?)\')'
-                matches = re.findall(Comment_pattern, sql)
-                comment_columns = [match[0] or match[2] for match in matches]
-                comment_values = [match[1] or match[3] for match in matches]
-    
-                # Find generated_always_as in columns
-                generated_pattern = r'(?:\"(.*?)\"|\b(\w+)\b).*?(?<=AS\s)\((.*?)\)\s*(?:(?=COMMENT)|(?=NOT\s+NULL)|(?=,|$))'
-                generated_always_as = re.findall(generated_pattern, sql, re.MULTILINE)
-    
-                # Find DEFAULT values in columns
-                DEFAULT_pattern = r'(?:\"(.*?)\"|\b(\w+)\b).*?(?<=DEFAULT\s)([^,\n]*?)(?=\s+(?:COMMENT|NOT\s+NULL|,\s*$))'
-                DEFAULT_matches = re.findall(DEFAULT_pattern, sql, re.MULTILINE | re.IGNORECASE)
-    
-                # Find Check constraints in columns
-                pattern_check = r'(?:\"(.*?)\"|\b(\w+)\b)\s+.*?CHECK\s+\((.*?)\)\s*(?:(?:COMMENT|NOT\s+NULL|,\s*$))'
-                check_matches = re.findall(pattern_check, sql)
-    
-                # Find the data types
-                data_type_matches = re.findall(
-                    r'("([^"]+)"|([\w\s/*&^?!-]+))\s+((?:VARCHAR|CHAR|NUMBER|BINARY|STRING|TIMESTAMP_NTZ|TIMESTAMP_TZ|TIMESTAMP|TIME|BOOLEAN|TEXT|DATE|INT|INTEGER|FLOAT|VARIANT|ARRAY|OBJECT|TIMESTAMP_LTZ|GEOGRAPHY|GEOMETRY|BLOB|CLOB|TINYINT|DECIMAL)(?:\([\d,]+\))?)',
-                    sql.replace('\n', ' '))
-    
-                column_name_list = []
-                data_types_list = []
-                for match in data_type_matches:
-                    full_match, quoted_column_name, unquoted_column_name, data_type = match
-                    column_name = quoted_column_name or unquoted_column_name
-                    column_name = column_name.strip()
-                    data_type = data_type.strip()
-                    column_name_list.append(column_name)
-                    data_types_list.append(data_type)
-    
-                # Generate Terraform code for each column
-                for col, j in zip(column_names, data_types_list):
-                    code += f"\ncolumn {{\n"
-                    code += f"\tname = \"{col}\"\n"
-                    code += f"\ttype = \"{j}\"\n"
-    
-                    # Handle generated_always_as column
-                    for quoted_column, unquoted_column, expression in generated_always_as:
-                        generated_column_name = quoted_column.strip() if quoted_column else unquoted_column.strip()
-                        expression_cleaned = expression.strip()
-    
-                        if col == generated_column_name:
-                            code += f"\tgenerated_always_as  = \"{expression_cleaned}\"\n"
-    
-                    # Handle Default column
-                    for match_def in DEFAULT_matches:
-                        DEFAULT_column_name = match_def[0] if match_def[0] else match_def[1]
-                        DEFAULT_default_value = match_def[2]
-                        DEFAULT_column_name = DEFAULT_column_name.replace('"', '').strip()
-                        DEFAULT_default_value = DEFAULT_default_value.replace('"', '').replace("'", '').strip()
-    
-                        if col == DEFAULT_column_name:
-                            code += f"\tdefault = \"{DEFAULT_default_value}\"\n"
-    
-                    # Handle Check column
-                    for check_match in check_matches:
-                        check_column_name = check_match[0] or check_match[1]
-                        check_condition = check_match[2]
-                        if col == check_column_name:
-                            code += f"\tcheck {{\n"
-                            code += f"\tcondition = \"{check_condition}\"\n"
-                            code += "}\t\n"
-    
-                    # Handle Not Null column
-                    if col in not_null_columns:
-                        code += f"\tnullable = false\n"
-                    else:
-                        code += f"\tnullable = true\n"
-    
-                    # Handle Comment column
-                    for comm_col, comm_values in zip(comment_columns, comment_values):
-                        if comm_col == col:
-                            code += f"\tcomment = \"{comm_values}\"\n"
-    
-                    code += "}\n\n"
-    
+    code = ""
+    ddl = sql.split(';')
+
+    for command in ddl:
+        command = command.strip().upper()
+        create_commands = re.findall(r"CREATE(?:\s+OR\s+REPLACE)?\s+TABLE(.*?)\(", command, re.DOTALL)
+
+        # Get the database name, schema name, table name
+        for create_command in create_commands:
+            create_command = create_command.strip()
+            database_info = create_command.split()[0].split('.')
+            database_name = database_info[0].replace('"', '')
+            schema_name = database_info[1].replace('"', '')
+            table_name = database_info[2].replace('"', '')
+
+#                 global resource_table_name
+            resource_database_name.append(database_name)
+            resource_schema_name.append(schema_name)
+            resource_table.append(table_name)
+
+
+            # data_retention_time_in_days_schema = 1
+
+            # Set the dynamic database name / remove dev, prod name
+            dynamic_db = ''
+            dynamic__main_db = ''
+            if database_name.endswith("_DEV"):
+                dynamic_db += database_name.replace("_DEV", "_${var.SF_ENVIRONMENT}")
+                dynamic__main_db += database_name.replace("_DEV", "")
+            elif database_name.endswith("_PROD"):
+                dynamic_db += database_name.replace("_PROD", "_${var.SF_ENVIRONMENT}")
+                dynamic__main_db += database_name.replace("_PROD", "")
+
+
+
+            # Create table
+            resource_table_name = f"resource \"snowflake_table\" \"{dynamic__main_db}_{schema_name}_{table_name}\""
+            code += f"{resource_table_name} {{\n"
+            code += f"\tdatabase = \"{dynamic_db}\"\n"
+
+            resource_table_name_demo = f'{dynamic__main_db}_{schema_name}_{table_name}'
+            resource_table_name_list.append(resource_table_name_demo)
+
+            code += f"\tschema = \"{schema_name}\"\n"
+            code += f"\tname = \"{table_name}\"\n"
+            # code += f"\tdata_retention_days = {data_retention_time_in_days_schema}\n"
+            code += f"\tchange_tracking = false\n"
+            code += f"\tcomment = \"{comment}\"\n"
+
+            # Find the column names
+            column_matches = re.findall(
+                r'"([^"]+)"|([a-zA-Z_][\w\s/\-*^]*)\s+(?:AS\s+)?(?:(?:VARCHAR|CHAR|NUMBER|BINARY|STRING|TIMESTAMP_NTZ|TIMESTAMP_TZ|TIMESTAMP|TIME|ARRAY|VARIANT|OBJECT|TIMESTAMP_LTZ|GEOGRAPHY|GEOMETRY|BLOB|CLOB|TINYINT|DECIMAL)\([\d,]+\)|ARRAY|VARCHAR|TIMESTAMP_NTZ|TIMESTAMP_TZ|TIMESTAMP|BOOLEAN|TEXT|DATE|INT|INTEGER|FLOAT|VARIANT|OBJECT|TIMESTAMP_LTZ|GEOGRAPHY|GEOMETRY|BLOB|CLOB|TINYINT|DECIMAL)',
+                sql.replace('\n', ' '))
+            column_names = [column[0] or column[1] for column in column_matches if column[0] or column[1]]
+            column_names = [column.strip() for column in column_names if column.strip() != 'AS']
+
+            # Find the Not Null column names
+            not_null_pattern = r'(?:"(.*?)".*?NOT NULL|(\w+)\s+.*?NOT NULL)'
+            matches = re.findall(not_null_pattern, sql)
+            not_null_columns = [match[0] or match[1] for match in matches]
+
+            # Find the Comment column names
+            Comment_pattern = r'(?:"(.*?)".*?COMMENT\s+\'(.*?)\'|(\w+)\s+.*?COMMENT\s+\'(.*?)\')'
+            matches = re.findall(Comment_pattern, sql)
+            comment_columns = [match[0] or match[2] for match in matches]
+            comment_values = [match[1] or match[3] for match in matches]
+
+            # Find generated_always_as in columns
+            generated_pattern = r'(?:\"(.*?)\"|\b(\w+)\b).*?(?<=AS\s)\((.*?)\)\s*(?:(?=COMMENT)|(?=NOT\s+NULL)|(?=,|$))'
+            generated_always_as = re.findall(generated_pattern, sql, re.MULTILINE)
+
+            # Find DEFAULT values in columns
+            DEFAULT_pattern = r'(?:\"(.*?)\"|\b(\w+)\b).*?(?<=DEFAULT\s)([^,\n]*?)(?=\s+(?:COMMENT|NOT\s+NULL|,\s*$))'
+            DEFAULT_matches = re.findall(DEFAULT_pattern, sql, re.MULTILINE | re.IGNORECASE)
+
+            # Find Check constraints in columns
+            pattern_check = r'(?:\"(.*?)\"|\b(\w+)\b)\s+.*?CHECK\s+\((.*?)\)\s*(?:(?:COMMENT|NOT\s+NULL|,\s*$))'
+            check_matches = re.findall(pattern_check, sql)
+
+            # Find the data types
+            data_type_matches = re.findall(
+                r'("([^"]+)"|([\w\s/*&^?!-]+))\s+((?:VARCHAR|CHAR|NUMBER|BINARY|STRING|TIMESTAMP_NTZ|TIMESTAMP_TZ|TIMESTAMP|TIME|BOOLEAN|TEXT|DATE|INT|INTEGER|FLOAT|VARIANT|ARRAY|OBJECT|TIMESTAMP_LTZ|GEOGRAPHY|GEOMETRY|BLOB|CLOB|TINYINT|DECIMAL)(?:\([\d,]+\))?)',
+                sql.replace('\n', ' '))
+
+            column_name_list = []
+            data_types_list = []
+            for match in data_type_matches:
+                full_match, quoted_column_name, unquoted_column_name, data_type = match
+                column_name = quoted_column_name or unquoted_column_name
+                column_name = column_name.strip()
+                data_type = data_type.strip()
+                column_name_list.append(column_name)
+                data_types_list.append(data_type)
+
+            # Generate Terraform code for each column
+            for col, j in zip(column_names, data_types_list):
+                code += f"\ncolumn {{\n"
+                code += f"\tname = \"{col}\"\n"
+                code += f"\ttype = \"{j}\"\n"
+
+                # Handle generated_always_as column
+                for quoted_column, unquoted_column, expression in generated_always_as:
+                    generated_column_name = quoted_column.strip() if quoted_column else unquoted_column.strip()
+                    expression_cleaned = expression.strip()
+
+                    if col == generated_column_name:
+                        code += f"\tgenerated_always_as  = \"{expression_cleaned}\"\n"
+
+                # Handle Default column
+                for match_def in DEFAULT_matches:
+                    DEFAULT_column_name = match_def[0] if match_def[0] else match_def[1]
+                    DEFAULT_default_value = match_def[2]
+                    DEFAULT_column_name = DEFAULT_column_name.replace('"', '').strip()
+                    DEFAULT_default_value = DEFAULT_default_value.replace('"', '').replace("'", '').strip()
+
+                    if col == DEFAULT_column_name:
+                        code += f"\tdefault = \"{DEFAULT_default_value}\"\n"
+
+                # Handle Check column
+                for check_match in check_matches:
+                    check_column_name = check_match[0] or check_match[1]
+                    check_condition = check_match[2]
+                    if col == check_column_name:
+                        code += f"\tcheck {{\n"
+                        code += f"\tcondition = \"{check_condition}\"\n"
+                        code += "}\t\n"
+
+                # Handle Not Null column
+                if col in not_null_columns:
+                    code += f"\tnullable = false\n"
+                else:
+                    code += f"\tnullable = true\n"
+
+                # Handle Comment column
+                for comm_col, comm_values in zip(comment_columns, comment_values):
+                    if comm_col == col:
+                        code += f"\tcomment = \"{comm_values}\"\n"
+
                 code += "}\n\n"
-        return code,resource_table_name_demo
-    else:
-        return None,None
-# Create the output folder
-output_folder = os.path.join(current_directory, 'Terraform_Files', 'Table')
 
-try:
-    os.makedirs(output_folder, exist_ok=True)
-except Exception as e:
-    print(f"An error occurred while creating the output folder: {e}")
+            code += "}\n\n"
+    return code,resource_table_name_demo
 
-# Process each SQL content and generate Terraform code
-for i, sql_contents in enumerate(sql_contents_list): # read the file data 
-    sql_without_quotes = remove_outer_quotes(sql_contents) # remove remove_outer_quotes
-    check_table_comment_value = check_table_comment(sql_without_quotes)
-    
-    main,resource_table_name_demo = python_terraform(sql_without_quotes, check_table_comment_value) # main sql code 
-    if main is not None:
+for sql_contents in sql_contents_list:
+    sql_without_quotes = remove_outer_quotes(sql_contents)
+    comment = check_table_comment(sql_without_quotes)  # Get the comment for the SQL content
+    main, resource_table_name_demo = python_terraform(sql_without_quotes, comment)  # Call python_terraform with both sql and comment
+    # Extract database name and schema name from the SQL content
+    extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', sql_without_quotes)
+    if extract_schema_database_table:
+        database_name, schema_name, table_name = extract_schema_database_table.groups()
+
+        # Update the output folder path to include database name and schema name
+        output_folder = os.path.join(current_directory, 'Terraform_Files', database_name, schema_name, 'Table')
+
         try:
-            output_filename = os.path.join(output_folder, f"{resource_table_name_demo}.tf")
-            
+            os.makedirs(output_folder, exist_ok=True)
+        except Exception as e:
+            print(f"An error occurred while creating the output folder: {e}")
+
+        # Write Terraform code to the appropriate output file
+        try:
+            dynamic_db = ''
+            dynamic__main_db = ''
+            if database_name.endswith("_DEV"):
+                dynamic_db += database_name.replace("_DEV", "_${var.SF_ENVIRONMENT}")
+                dynamic__main_db += database_name.replace("_DEV", "")
+            elif database_name.endswith("_PROD"):
+                dynamic_db += database_name.replace("_PROD", "_${var.SF_ENVIRONMENT}")
+                dynamic__main_db += database_name.replace("_PROD", "")
+
+            resource_table_name = f"{dynamic__main_db}_{schema_name}_{table_name}"
+            output_filename = os.path.join(output_folder, f"{resource_table_name}.tf")
+
             with open(output_filename, 'w') as tf_file:
                 tf_file.write(main)
         except Exception as e:
             print(f"An error occurred while writing the output file: {e}")
+    else:
+        print("Unable to extract database name and schema name from the SQL content.")
