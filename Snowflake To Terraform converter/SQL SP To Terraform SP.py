@@ -330,7 +330,16 @@ for sql_contents in sql_contents_list:
 
             # Write Terraform code to the appropriate output file
             try:
-                resource_table_name = f"{database_name}_{schema_name}_{table_name}"
+                dynamic_db = ''
+                dynamic__main_db = ''
+                if database_name.endswith("_DEV"):
+                    dynamic_db += database_name.replace("_DEV", "_${var.SF_ENVIRONMENT}")
+                    dynamic__main_db += database_name.replace("_DEV", "")
+                elif database_name.endswith("_PROD"):
+                    dynamic_db += database_name.replace("_PROD", "_${var.SF_ENVIRONMENT}")
+                    dynamic__main_db += database_name.replace("_PROD", "")
+                
+                resource_table_name = f"{dynamic__main_db}_{schema_name}_{table_name}"
                 output_filename = os.path.join(output_folder, f"{resource_table_name}.tf")
                 with open(output_filename, 'w') as tf_file:
                     tf_file.write(main)
