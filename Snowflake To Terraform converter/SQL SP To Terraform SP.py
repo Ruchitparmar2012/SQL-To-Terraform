@@ -298,10 +298,6 @@ def python_terraform(sql):
                     
                 
     return code
-
-
-
-
         
 
 # Process each SQL content and generate Terraform code
@@ -309,24 +305,35 @@ for sql_contents in sql_contents_list:
     sql_without_quotes = remove_outer_quotes(sql_contents)
     main = python_terraform(sql_without_quotes)
     # Extract database name and schema name from the SQL content
-    extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', sql_without_quotes)
-    if extract_schema_database_table:
-        database_name, schema_name, table_name = extract_schema_database_table.groups()
-        # Update the output folder path to include database name and schema name
-        output_folder = os.path.join(current_directory, 'Terraform_Files', database_name, schema_name, 'stored procedure')
+    
+    create_commands = re.findall(r"CREATE(?:\s+OR\s+REPLACE)?\s+PROCEDURE(.*?)\(", sql_without_quotes, re.DOTALL)
+
+    # get the database name, schema name, table name
+    for create_command in create_commands:
+        create_command = create_command.strip()
+        # get the database name , schema name , tabel name
+        extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', create_command)
+#         database_name, schema_name, table_name = extract_schema_database_table.groups()
         
-        try:
-            os.makedirs(output_folder, exist_ok=True)
-        except Exception as e:
-            print(f"An error occurred while creating the output folder: {e}")
-        
-        # Write Terraform code to the appropriate output file
-        try:
-            resource_table_name = f"{database_name}_{schema_name}_{table_name}"
-            output_filename = os.path.join(output_folder, f"{resource_table_name}.tf")
-            with open(output_filename, 'w') as tf_file:
-                tf_file.write(main)
-        except Exception as e:
-            print(f"An error occurred while writing the output file: {e}")
-    else:
-        print("Unable to extract database name and schema name from the SQL content.")
+#     extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', sql_without_quotes)
+
+        if extract_schema_database_table:
+            database_name, schema_name, table_name = extract_schema_database_table.groups()
+            # Update the output folder path to include database name and schema name
+            output_folder = os.path.join(current_directory, 'Terraform_Files', database_name, schema_name, 'stored procedure')
+
+            try:
+                os.makedirs(output_folder, exist_ok=True)
+            except Exception as e:
+                print(f"An error occurred while creating the output folder: {e}")
+
+            # Write Terraform code to the appropriate output file
+            try:
+                resource_table_name = f"{database_name}_{schema_name}_{table_name}"
+                output_filename = os.path.join(output_folder, f"{resource_table_name}.tf")
+                with open(output_filename, 'w') as tf_file:
+                    tf_file.write(main)
+            except Exception as e:
+                print(f"An error occurred while writing the output file: {e}")
+        else:
+            print("Unable to extract database name and schema name from the SQL content.")
