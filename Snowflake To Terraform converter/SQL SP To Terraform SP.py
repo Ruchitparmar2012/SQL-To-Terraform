@@ -313,12 +313,12 @@ for sql_contents in sql_contents_list:
         create_command = create_command.strip()
         # get the database name , schema name , tabel name
         extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', create_command)
-#         database_name, schema_name, table_name = extract_schema_database_table.groups()
+        database_name, schema_name, table_name = extract_schema_database_table.groups()
         
-#     extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', sql_without_quotes)
+        print(database_name, schema_name, table_name)
 
         if extract_schema_database_table:
-            database_name, schema_name, table_name = extract_schema_database_table.groups()
+#             database_name, schema_name, table_name = extract_schema_database_table.groups()
             # Update the output folder path to include database name and schema name
             output_folder = os.path.join(current_directory, 'Terraform_Files', database_name, schema_name, 'stored procedure')
 
