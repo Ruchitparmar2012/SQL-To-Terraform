@@ -412,25 +412,39 @@ def python_terraform(sql):
 for sql_contents in sql_contents_list:
     sql_without_quotes = remove_outer_quotes(sql_contents)
     main = python_terraform(sql_without_quotes)
-#     print(main)
+    # Extract database name and schema name from the SQL content
 
-output_folder = os.path.join(current_directory, 'Terraform_Files','Function')
+    
+    create_commands = re.findall(r"CREATE(?:\s+OR\s+REPLACE)?\s+FUNCTION(.*?)\(", sql_without_quotes, re.DOTALL | re.IGNORECASE)
 
-try:
-    os.makedirs(output_folder, exist_ok=True)
-except Exception as e:
-    print(f"An error occurred while creating the output folder: {e}")
+    # get the database name, schema name, function name
+    for create_command in create_commands:
+        create_command = create_command.strip()
+        # get the database name, schema name, function name
+        extract_schema_database_function = re.search(r'\b(\w+)\.(\w+)\.(\w+)', create_command ,re.DOTALL | re.IGNORECASE)
+        database_name, schema_name, table_name = extract_schema_database_function.groups()
 
-for i, sql_contents in enumerate(sql_contents_list):
-    sql_without_quotes = remove_outer_quotes(sql_contents)
-    main = python_terraform(sql_without_quotes)
+        output_folder = os.path.join(current_directory, 'Terraform_Files', database_name, schema_name, 'Function')
 
-    for i in resource_table_name_list:
-        resource_name = i 
-        output_filename = os.path.join(output_folder, f"{resource_name}.tf")
+        try:
+            os.makedirs(output_folder, exist_ok=True)
+        except Exception as e:
+            print(f"An error occurred while creating the output folder: {e}")
 
-    try:
-        with open(output_filename, 'w') as tf_file:
-            tf_file.write(main)
-    except Exception as e:
-        print(f"An error occurred while writing the output file: {e}")
+        # Write Terraform code to the appropriate output file
+        try:
+            dynamic_db = ''
+            dynamic__main_db = ''
+            if database_name.endswith("_DEV"):
+                dynamic_db += database_name.replace("_DEV", "_${var.SF_ENVIRONMENT}")
+                dynamic__main_db += database_name.replace("_DEV", "")
+            elif database_name.endswith("_PROD"):
+                dynamic_db += database_name.replace("_PROD", "_${var.SF_ENVIRONMENT}")
+                dynamic__main_db += database_name.replace("_PROD", "")
+
+            resource_table_name = f"{dynamic__main_db}_{schema_name}_{table_name}"
+            output_filename = os.path.join(output_folder, f"{resource_table_name}.tf")
+            with open(output_filename, 'w') as tf_file:
+                tf_file.write(main)
+        except Exception as e:
+            print(f"An error occurred while writing the output file: {e}")
