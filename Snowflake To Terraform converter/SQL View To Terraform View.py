@@ -65,8 +65,9 @@ def python_terraform(sql):
         # get the Database name,schema name ,table name 
         # Define a regular expression pattern to extract database, schema, and table names
 
-        info_pattern = r'CREATE\s+(?:OR\s+REPLACE\s+)?(?:SECURE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z_]+)(?:"?)\.)?(?:"?)([A-Z_]+)(?:"?)\.([A-Z_]+)'
-        
+        # info_pattern = r'CREATE\s+(?:OR\s+REPLACE\s+)?(?:SECURE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z_]+)(?:"?)\.)?(?:"?)([A-Z_]+)(?:"?)\.([A-Z_]+)'
+        info_pattern = r'CREATE\s+(?:OR\s+REPLACE\s+)?(?:SECURE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z0-9_]+)(?:"?)\.)?(?:"?)([A-Z0-9_]+)(?:"?)\.([A-Z0-9_]+)'
+
         # Find all matches of the pattern in the SQL code
         info_matches = re.findall(info_pattern, command, re.IGNORECASE)
         # Extract and print the matched database, schema, and table names
@@ -91,8 +92,9 @@ def python_terraform(sql):
         #------------------------------------------------------------------------------------------------
             
 #             value_pattern = r'CREATE\s+(?:OR\s+REPLACE\s+)?(?:SECURE\s+)?VIEW\s+(?:(?:"?)([A-Z_]+)(?:"?)\.)?(?:"?)([A-Z_]+)(?:"?)\.([A-Z_]+)[\s\S]*?(?<=AS\s)([\s\S]*)$'
-            value_pattern = r'CREATE\s+(?:OR\s+REPLACE\s+)?(?:SECURE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z_]+)(?:"?)\.)?(?:"?)([A-Z_]+)(?:"?)\.([A-Z_]+)[\s\S]*?(?<=AS\s)([\s\S]*)$'
-            
+            # value_pattern = r'CREATE\s+(?:OR\s+REPLACE\s+)?(?:SECURE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z_]+)(?:"?)\.)?(?:"?)([A-Z_]+)(?:"?)\.([A-Z_]+)[\s\S]*?(?<=AS\s)([\s\S]*)$'
+            value_pattern = r'CREATE\s+(?:OR\s+REPLACE\s+)?(?:SECURE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z0-9_]+)(?:"?)\.)?(?:"?)([A-Z0-9_]+)(?:"?)\.([A-Z0-9_]+)[\s\S]*?(?<=AS\s)([\s\S]*)$'
+
             value_matches = re.search(value_pattern, sql, re.IGNORECASE | re.DOTALL)
 
             if value_matches:
@@ -102,8 +104,10 @@ def python_terraform(sql):
                 print("No view definition found.")
             
              # create View  
-            value_pattern_M_S = r'CREATE\s+(?:OR\s+REPLACE\s+)?(SECURE\s+)?(MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z_]+)(?:"?)\.)?(?:"?)([A-Z_]+)(?:"?)\.([A-Z_]+)[\s\S]*?(?<=AS\s)([\s\S]*)$'
-            
+            # value_pattern_M_S = r'CREATE\s+(?:OR\s+REPLACE\s+)?(SECURE\s+)?(MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z_]+)(?:"?)\.)?(?:"?)([A-Z_]+)(?:"?)\.([A-Z_]+)[\s\S]*?(?<=AS\s)([\s\S]*)$'
+
+            value_pattern_M_S = r'CREATE\s+(?:OR\s+REPLACE\s+)?(SECURE\s+)?(MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z0-9_]+)(?:"?)\.)?(?:"?)([A-Z0-9_]+)(?:"?)\.([A-Z0-9_]+)[\s\S]*?(?<=AS\s)([\s\S]*)$'
+
             value_matches_M_S = re.search(value_pattern_M_S, sql, re.IGNORECASE | re.DOTALL)
               
 #             # Print value_matches_M_S to inspect its content
