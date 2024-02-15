@@ -1,4 +1,4 @@
-
+# pip install snowflake-connector-python
 import warnings
 import os
 import snowflake.connector
