@@ -881,7 +881,7 @@ for sql_contents in sql_contents_list:
     main = python_terraform(sql_without_quotes)
 
     # Extract database name and schema name from the SQL content
-    extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', sql_without_quotes)
+    extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', sql_without_quotes,re.DOTALL | re.IGNORECASE)
     if extract_schema_database_table:
         database_name, schema_name,table_name = extract_schema_database_table.groups()
 
