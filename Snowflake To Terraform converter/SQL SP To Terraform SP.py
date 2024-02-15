@@ -307,7 +307,7 @@ for sql_contents in sql_contents_list:
     main = python_terraform(sql_without_quotes)
     # Extract database name and schema name from the SQL content
     
-    create_commands = re.findall(r"CREATE(?:\s+OR\s+REPLACE)?\s+PROCEDURE(.*?)\(", sql_without_quotes, re.DOTALL)
+    create_commands = re.findall(r"CREATE(?:\s+OR\s+REPLACE)?\s+PROCEDURE(.*?)\(", sql_without_quotes, re.DOTALL | re.IGNORECASE)
 
     # get the database name, schema name, table name
     for create_command in create_commands:
