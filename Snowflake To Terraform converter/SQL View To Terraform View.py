@@ -157,7 +157,7 @@ for sql_contents in sql_contents_list:
     # Extract database name and schema name from the SQL content
 #     extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', sql_without_quotes)
     
-    info_pattern = r'CREATE\s+(?:OR\s+REPLACE\s+)?(?:SECURE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z_]+)(?:"?)\.)?(?:"?)([A-Z_]+)(?:"?)\.([A-Z_]+)'
+    info_pattern = r'CREATE\s+(?:OR\s+REPLACE\s+)?(?:SECURE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z0-9_]+)(?:"?)\.)?(?:"?)([A-Z0-9_]+)(?:"?)\.([A-Z0-9_]+)'
         
         # Find all matches of the pattern in the SQL code
     extract_schema_database_table = re.findall(info_pattern, sql_without_quotes, re.IGNORECASE)
