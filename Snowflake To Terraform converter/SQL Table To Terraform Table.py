@@ -314,7 +314,7 @@ for sql_contents in sql_contents_list:
     comment = check_table_comment(sql_without_quotes)  # Get the comment for the SQL content
     main, resource_table_name_demo = python_terraform(sql_without_quotes, comment)  # Call python_terraform with both sql and comment
     # Extract database name and schema name from the SQL content
-    extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', sql_without_quotes)
+    extract_schema_database_table = re.search(r'\b(\w+)\.(\w+)\.(\w+)', sql_without_quotes,re.DOTALL | re.IGNORECASE)
     if extract_schema_database_table:
         database_name, schema_name, table_name = extract_schema_database_table.groups()
 
