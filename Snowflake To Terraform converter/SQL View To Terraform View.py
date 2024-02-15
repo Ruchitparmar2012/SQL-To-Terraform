@@ -160,7 +160,7 @@ for sql_contents in sql_contents_list:
     info_pattern = r'CREATE\s+(?:OR\s+REPLACE\s+)?(?:SECURE\s+)?(?:MATERIALIZED\s+)?VIEW\s+(?:(?:"?)([A-Z0-9_]+)(?:"?)\.)?(?:"?)([A-Z0-9_]+)(?:"?)\.([A-Z0-9_]+)'
         
         # Find all matches of the pattern in the SQL code
-    extract_schema_database_table = re.findall(info_pattern, sql_without_quotes, re.IGNORECASE)
+    extract_schema_database_table = re.findall(info_pattern, sql_without_quotes, re.DOTALL | re.IGNORECASE)
     
     for match in extract_schema_database_table:
         database_name = match[0].strip('"')
