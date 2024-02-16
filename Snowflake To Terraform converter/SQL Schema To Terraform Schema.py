@@ -47,100 +47,145 @@ except Exception as e:
     print(f"An error occurred: {e}")
     
 
-# This code removes double quotes outside of DDL, including Database, schema, table name
-def remove_outer_quotes(sql):
-    ls1 = sql.split("(")[0].replace('"', '')
-    ls2 = ["(" + i for i in sql.split("(")[1:]]
-    ls2.insert(0, ls1)
-    sql = "".join(ls2)
-
-    return sql
-
-def check_table_comment(sql):
-    comment_match = re.search(r"comment\s*=\s*'([^']*)'", sql, re.IGNORECASE)
-
-    if comment_match:
-        comment = comment_match.group(1)
-        return comment
-    else:
-        return None
 
 
-resource_table_name_list = []
+resource_File_Format_name_list = []
 
 # Main Python code
-def python_terraform(sql, comment):
-    comment = check_table_comment(sql)
-    
-    if comment:
+def python_terraform(sql):
+
        
-        code = ""
-        ddl = sql.split(';')
-    
-        for command in ddl:
-            command = command.strip().upper()
-            create_commands = re.findall(r"CREATE(?:\s+OR\s+REPLACE)?\s+TABLE(.*?)\(", command, re.DOTALL)
-    
-            # Get the database name, schema name, table name
-            for create_command in create_commands:
-                create_command = create_command.strip()
-                database_info = create_command.split()[0].split('.')
-                database_name = database_info[0].replace('"', '')
-                schema_name = database_info[1].replace('"', '')
-                table_name = database_info[2].replace('"', '')
-                data_retention_time_in_days_schema = 1
-    
-                # Set the dynamic database name / remove dev, prod name
-                dynamic_db = ''
-                dynamic__main_db = ''
-                if database_name.endswith("_DEV"):
-                    dynamic_db += database_name.replace("_DEV", "_${var.SF_ENVIRONMENT}")
-                    dynamic__main_db += database_name.replace("_DEV", "")
-                elif database_name.endswith("_PROD"):
-                    dynamic_db += database_name.replace("_PROD", "_${var.SF_ENVIRONMENT}")
-                    dynamic__main_db += database_name.replace("_PROD", "")
-    
-                
-    
-                # Create Schema
-                resource_table_name = f"resource \"snowflake_schema\" \"{dynamic__main_db}_{schema_name}_{table_name}\""
-                code += f"{resource_table_name} {{\n"
-                code += f"\tdatabase = \"{dynamic_db}\"\n"
-                
-                resource_table_name_demo = f'{dynamic__main_db}_{schema_name}_{table_name}'
-                resource_table_name_list.append(resource_table_name_demo)
-                
-                code += f"\tschema = \"{schema_name}\"\n"
-                code += f"\tname = \"{table_name}\"\n"
-                code += f"\tdata_retention_days = {data_retention_time_in_days_schema}\n"
-                code += f"\tcomment = \"{comment}\"\n"
-    
-    
-                code += "}\n\n"
-    
+    code = ""
 
-        return code,resource_table_name_demo
+    database_match = re.search( r"DATABASE_NAME\s*=\s*(\w+)", sql , re.IGNORECASE | re.DOTALL)
+
+    # Extract the DATABASE_NAME value from the match object
+    if database_match:
+        database_value = database_match.group(1)
+#         print(f"DATABASE_NAME: {database_value}")
     else:
-        return None,None
-# Create the output folder
-output_folder = os.path.join(current_directory, 'Terraform_Files', 'Schema')
-
-try:
-    os.makedirs(output_folder, exist_ok=True)
-except Exception as e:
-    print(f"An error occurred while creating the output folder: {e}")
-
-# Process each SQL content and generate Terraform code
-for i, sql_contents in enumerate(sql_contents_list): # read the file data 
-    sql_without_quotes = remove_outer_quotes(sql_contents) # remove remove_outer_quotes
-    check_table_comment_value = check_table_comment(sql_without_quotes)
+        print("DATABASE_NAME not found")
     
-    main,resource_table_name_demo = python_terraform(sql_without_quotes, check_table_comment_value) # main sql code 
-    if main is not None:
+    schema_match = re.search( r"SCHEMA_NAME\s*=\s*(\w+)",  sql , re.IGNORECASE | re.DOTALL)
+
+    # Extract the DATABASE_NAME value from the match object
+    if schema_match:
+        schema_value  = schema_match.group(1)
+    else:
+        print("schema name not found")
+    
+    
+    IS_TRANSIENT_match = re.search(r"IS_TRANSIENT\s*=\s*(\w+)",  sql , re.IGNORECASE | re.DOTALL)
+
+    # Extract the DATABASE_NAME value from the match object
+    if IS_TRANSIENT_match:
+        IS_TRANSIENT_value  = IS_TRANSIENT_match.group(1)
+    else:
+        print("IS_TRANSIENT_value not found")
+        
+    # Use re.search() to find the match
+    IS_MANAGED_ACCESS_match = re.search(r"IS_MANAGED_ACCESS\s*=\s*(\w+)",  sql , re.IGNORECASE | re.DOTALL)
+
+    # Extract the DATABASE_NAME value from the match object
+    if IS_MANAGED_ACCESS_match:
+        IS_MANAGED_ACCESS_value  = IS_MANAGED_ACCESS_match.group(1)
+    else:
+        print("IS_MANAGED_ACCESS_value not found")
+        
+        
+    # Use re.search() to find the match
+    RETENTION_TIME_match = re.search(r"RETENTION_TIME\s*=\s*(\d+)",  sql , re.IGNORECASE | re.DOTALL)
+
+    # Extract the DATABASE_NAME value from the match object
+    if RETENTION_TIME_match:
+        RETENTION_TIME_value  = RETENTION_TIME_match.group(1)
+    else:
+        print("RETENTION_TIME_value not found")
+        
+    
+    COMMENT_match = re.search(r"COMMENT\s*=\s*(.*)",  sql , re.IGNORECASE | re.DOTALL)
+
+    # Extract the DATABASE_NAME value from the match object
+    if COMMENT_match:
+        comment_value = COMMENT_match.group(1).strip()
+    else :
+        pass
+
+#             data_retention_time_in_days_schema = 1
+
+#             # Set the dynamic database name / remove dev, prod name
+    dynamic_db = ''
+    dynamic__main_db = ''
+    if database_value.endswith("_DEV"):
+        dynamic_db += database_value.replace("_DEV", "_${var.SF_ENVIRONMENT}")
+        dynamic__main_db += database_value.replace("_DEV", "")
+    elif database_value.endswith("_PROD"):
+        dynamic_db += database_value.replace("_PROD", "_${var.SF_ENVIRONMENT}")
+        dynamic__main_db += database_value.replace("_PROD", "")
+
+
+#     print(dynamic__main_db)
+#             # Create Schema
+    resource_table_name = f"resource \"snowflake_schema\" \"{schema_value}\""
+    code += f"{resource_table_name} {{\n"
+    code += f"\tdatabase = \"{dynamic_db}\"\n"
+
+    resource_table_name_demo = f'{dynamic__main_db}_{schema_value}'
+    resource_File_Format_name_list.append(resource_table_name_demo)
+
+    code += f"\tname = \"{schema_value}\"\n"
+    
+    if comment_value:
+#         comment_value = COMMENT_match.group(1).strip()
+        code += f"\tcomment = \"{comment_value}\"\n"
+    else:
+        pass
+    
+    if IS_TRANSIENT_value=='NO':
+        code += f"\tis_transient = false\n"
+    else:
+        code += f"\tis_transient = true\n"
+        
+    if IS_MANAGED_ACCESS_value=='NO':
+        code += f"\tis_managed = false\n"        
+    else:
+        code += f"\tis_managed = true\n"
+
+
+    code += f"\tdata_retention_days  = {RETENTION_TIME_value}\n"
+
+
+    code += "}\n\n"
+
+
+    return code
+
+for i, sql_contents in enumerate(sql_contents_list):
+    main = python_terraform(sql_contents)
+#     print(sql_contents)   
+    
+    database_match = re.search( r"DATABASE_NAME\s*=\s*(\w+)", sql_contents , re.IGNORECASE | re.DOTALL)
+
+    # Extract the DATABASE_NAME value from the match object
+    if database_match:
+        database_value = database_match.group(1)
+        
+        output_folder = os.path.join(current_directory, 'Terraform_Files', database_value,'Schema')
+
         try:
-            output_filename = os.path.join(output_folder, f"{resource_table_name_demo}.tf")
-            
-            with open(output_filename, 'w') as tf_file:
-                tf_file.write(main)
+            os.makedirs(output_folder, exist_ok=True)
         except Exception as e:
-            print(f"An error occurred while writing the output file: {e}")
+            print(f"An error occurred while creating the output folder: {e}")
+
+        for i, sql_contents in enumerate(sql_contents_list):
+            main = python_terraform(sql_contents)
+
+            for i in resource_File_Format_name_list:
+                resource_name = i 
+                output_filename = os.path.join(output_folder, f"{resource_name}.tf")
+
+            try:
+                with open(output_filename, 'w') as tf_file:
+                    tf_file.write(main)
+            except Exception as e:
+                print(f"An error occurred while writing the output file: {e}")
