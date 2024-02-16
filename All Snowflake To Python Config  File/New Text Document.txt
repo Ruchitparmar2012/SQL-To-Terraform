@@ -1,3 +1,10 @@
+output_folder = os.path.join(current_directory, 'Terraform_Files','File Format')
+
+try:
+    os.makedirs(output_folder, exist_ok=True)
+except Exception as e:
+    print(f"An error occurred while creating the output folder: {e}")
+
 for i, sql_contents in enumerate(sql_contents_list):
 #     sql_without_quotes = remove_outer_quotes(sql_contents)
     main = python_terraform(sql_contents)
