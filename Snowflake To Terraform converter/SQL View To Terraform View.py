@@ -191,7 +191,7 @@ for sql_contents in sql_contents_list:
                 
                 resource_table_name = f"{dynamic__main_db}_{schema_name}_{table_name}"
                 output_filename = os.path.join(output_folder, f"{resource_table_name}.tf")
-                with open(output_filename, 'w') as tf_file:
+                with open(output_filename, 'w',encoing='utf-8') as tf_file:
                     tf_file.write(main)
             except Exception as e:
                 print(f"An error occurred while writing the output file: {e}")
