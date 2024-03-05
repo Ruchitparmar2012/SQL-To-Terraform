@@ -1,20 +1,37 @@
-output_folder = os.path.join(current_directory, 'Terraform_Files','File Format')
+import re
 
-try:
-    os.makedirs(output_folder, exist_ok=True)
-except Exception as e:
-    print(f"An error occurred while creating the output folder: {e}")
+# Your SQL string
+sql = '''
+CREATE OR REPLACE PROCEDURE DW_DEV.TEST.GET_AMS_EMPLOYEE_ID call (EMPLOYEE_ENTERPRISE_ID  VARCHAR(16777216), "STR_ETL_TASK_KEY" VARCHAR(123),STR_CDC_START number(19,0))
+RETURNS TABLE ()
+LANGUAGE SQL
+EXECUTE AS OWNER
+AS     
+ $$  
+    var my_sql_command = "select * from table1";
+    var statement1 = snowflake.createStatement( {sqlText: my_sql_command} );
+    var result_set1 = statement1.execute();
+    // Loop through the results, processing one row at a time... 
+    while (result_set1.next()) {
+       var column1 = result_set1.getColumnValue(1);
+       var column2 = result_set1.getColumnValue(2);
+       // Do something with the retrieved values...
+       }
+ return 0.0; // Replace with something more useful.
+ $$
+ ;
+'''
 
-for i, sql_contents in enumerate(sql_contents_list):
-#     sql_without_quotes = remove_outer_quotes(sql_contents)
-    main = python_terraform(sql_contents)
+# Extract the arguments part of the SQL string
+arguments_str = sql[sql.find("(")+1:sql.find(")\nRETURNS")]
 
-    for i in resource_File_Format_name_list:
-        resource_name = i 
-        output_filename = os.path.join(output_folder, f"{resource_name}.tf")
-     
-    try:
-        with open(output_filename, 'w') as tf_file:
-            tf_file.write(main)
-    except Exception as e:
-        print(f"An error occurred while writing the output file: {e}")
+# Regular expression pattern to match argument names and types
+pattern = r'("?(\w+)"?\s*(?:\s*(\w+\s*\(\d+(,\d+)?\))?))'
+
+# Find all matches
+matches = re.findall(pattern, arguments_str)
+
+# Iterate over matches and print the desired output
+for match in matches:
+    argument_name, argument_type = match[1], match[2]
+    print(f"argument_name : {argument_name} argument_type : {argument_type}")
